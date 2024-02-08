@@ -1,0 +1,90 @@
+﻿@page "/Projects"
+@using ResoWire.Data
+@inject ProjectService projectService
+
+
+<h3>Projects</h3>
+<AuthorizeView Roles="Administrators">
+    <NavLink class="nav-link" href="AddNewProject">
+    <button class="btn btn-primary">Add A New Project</button>
+    </NavLink>
+</AuthorizeView>
+
+<button @onclick="@showCreatedColumns">Show Creation Columns</button>
+
+<div class="table-responsive">
+    <table class="table table-striped project">
+        <thead>
+            <tr>
+                <th>Projects</th>
+                <th>Start Date</th>
+                <th>Assigned To</th>
+                 <AuthorizeView Roles="Administrators">
+                <th hidden="@columnToggle">Created By</th>
+                <th hidden="@columnToggle">Created By Id</th>
+                <th hidden="@columnToggle">Created On</th>
+                 </AuthorizeView>
+            </tr>
+        </thead>
+        <tbody>
+            @if (projects != null)
+            {
+              
+                @foreach (var project in projects)
+                {
+                    <tr>
+                        <td>
+                           <a class="nav-link" href="Issues/@project.ProjectId"><span aria-hidden="true">@project.Projectname</span></a>
+                       </td> 
+                        <td class="align-middle">@project.StartDate</td> 
+                        <td class="align-middle">@project.AssignedTo</td>
+                         <AuthorizeView Roles="Administrators">
+                        <td class="align-middle" hidden="@columnToggle">@project.CreatedBy</td>
+                        <td class="align-middle" hidden="@columnToggle">@project.CreatedById</td>
+                        <td class="align-middle" hidden="@columnToggle">@project.CreatedOn</td>
+                        <td>
+                            <a class="nav-link" href="EditProject/@project.ProjectId"><span class="oi oi-pencil" aria-hidden="true">Edit</span></a>
+                        </td>
+                        <td>
+                            <a class="nav-link" href="DeleteProject/@project.ProjectId"><span class="oi oi-pencil" aria-hidden="true">Delete</span></a>
+                        </td>
+                        </AuthorizeView>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>No Projects yet!</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+@code {
+    public bool columnToggle { get; set; } = true;
+
+    private List<Project> projects;
+
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await projectService.GetAllProjectsAsync();
+    }  
+    
+    private void showCreatedColumns()
+        {
+            if (columnToggle == true)
+            {
+                columnToggle = false;
+            }
+            else
+            {
+                columnToggle = true;
+            }
+        }
+
+
+}
+   

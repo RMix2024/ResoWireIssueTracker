@@ -1,0 +1,69 @@
+﻿@page "/Issues/{ProjectId}"
+
+@inject IssueService issueService
+@inject ProjectService projectService
+
+<h3>@projectObject.Projectname </h3>
+<h1>Issues</h1>
+
+<a class="btn btn-primary " href="AddIssue/@projectObject.ProjectId">Add an Issue</a>
+<div class="table-responsive">
+    <table class="table table-striped project">
+        <thead>
+            <tr>
+                
+                <th>Issue Name</th>
+                <th>Summary</th>
+                <th>Description</th>
+            
+            </tr>
+        </thead>
+        <tbody>
+            @if (issues != null)
+            {
+              
+                @foreach (var issue in issues)
+                {
+                    <tr>                      
+                        <td class="align-middle">@if (issue.IssueName == null)
+                            {
+                                <a class="nav-link" href="IssueDetails/@issue.IssueId"><span aria-hidden="true">@(projectObject.Projectname + issue.IssueId)</span></a>
+                                
+                            }
+                            else
+                            {
+                                <a class="nav-link" href="IssueDetails/@issue.IssueId"><span aria-hidden="true">@issue.IssueName</span></a>
+                            }
+                        </td> 
+                        <td class="align-middle">@issue.IssueSummary</td> 
+                        <td class="align-middle">@issue.Description</td>                    
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>No Issues yet!</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public string ProjectId { get; set; }
+
+    private List<Issue> issues;
+
+    Project projectObject = new Project();
+
+    protected override async Task OnInitializedAsync()
+    {
+        projectObject = await Task.Run(() => projectService.GetProjectAsync(Convert.ToInt32(ProjectId)));
+        issues = await Task.Run(() => issueService.GetFilteredIssuesAsync(Convert.ToInt32(ProjectId)));
+    }    
+
+}
